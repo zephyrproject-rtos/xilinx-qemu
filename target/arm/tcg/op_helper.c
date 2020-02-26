@@ -353,12 +353,8 @@ void HELPER(wfi)(CPUARMState *env, uint32_t insn_len)
     }
 
     qemu_mutex_lock_iothread();
-    if (use_icount) {
-        cs->exception_index = EXCP_YIELD;
-    } else {
-        cs->halted = 1;
-        cs->exception_index = EXCP_HLT;
-    }
+    cs->halted = 1;
+    cs->exception_index = EXCP_HLT;
 
     /* Drive STANDBYWFI only if cpu reset-pin is inactive */
     if (cs->reset_pin == false) {
