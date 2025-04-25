@@ -553,6 +553,18 @@ static void rv128_base_cpu_init(Object *obj)
 #endif
 }
 #else
+#ifndef CONFIG_USER_ONLY
+static uint64_t mb_v_rdtime(void *opaque)
+{
+    CPURISCVState *env = &RISCV_CPU(opaque)->env;
+    uint32_t time, timeh;
+
+    csr_ops[CSR_MCYCLE].read(env, CSR_MCYCLE, &time);
+    csr_ops[CSR_MCYCLEH].read(env, CSR_MCYCLEH, &timeh);
+    return (uint64_t) timeh << 32 | time;
+}
+#endif
+
 static void rv32_base_cpu_init(Object *obj)
 {
     CPURISCVState *env = &RISCV_CPU(obj)->env;
@@ -562,6 +574,7 @@ static void rv32_base_cpu_init(Object *obj)
     env->priv_ver = PRIV_VERSION_LATEST;
 #ifndef CONFIG_USER_ONLY
     set_satp_mode_max_supported(RISCV_CPU(obj), VM_1_10_SV32);
+    riscv_cpu_set_rdtime_fn(env, mb_v_rdtime, obj);
 #endif
 }
 
@@ -633,18 +646,6 @@ static void rv32_imafcu_nommu_cpu_init(Object *obj)
     cpu->cfg.ext_zicsr = true;
     cpu->cfg.pmp = true;
 }
-
-#ifndef CONFIG_USER_ONLY
-static uint64_t mb_v_rdtime(void *opaque)
-{
-    CPURISCVState *env = &RISCV_CPU(opaque)->env;
-    uint32_t time, timeh;
-
-    csr_ops[CSR_MCYCLE].read(env, CSR_MCYCLE, &time);
-    csr_ops[CSR_MCYCLEH].read(env, CSR_MCYCLEH, &timeh);
-    return (uint64_t) timeh << 32 | time;
-}
-#endif
 
 static void rv32_microblaze_v_cpu_init(Object *obj)
 {
