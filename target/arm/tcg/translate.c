@@ -7927,7 +7927,7 @@ static bool op_stm(DisasContext *s, arg_ldst_block *a)
         } else {
             tmp = load_reg(s, i);
         }
-        gen_aa32_st_i32(s, tmp, addr, mem_idx, MO_UL | MO_ALIGN);
+        gen_aa32_st32(s, tmp, addr, mem_idx);
 
         /* No need to add after the last transfer.  */
         if (++j != n) {
@@ -8009,7 +8009,7 @@ static bool do_ldm(DisasContext *s, arg_ldst_block *a)
         }
 
         tmp = tcg_temp_new_i32();
-        gen_aa32_ld_i32(s, tmp, addr, mem_idx, MO_UL | MO_ALIGN);
+        gen_aa32_ld32u(s, tmp, addr, mem_idx);
         if (user) {
             gen_helper_set_user_reg(tcg_env, tcg_constant_i32(i), tmp);
         } else if (i == a->rn) {
